@@ -43,9 +43,18 @@ class BaseParser(object):
         # input byte strings and converting them to a predictable
         # output encoding
         # http://nedbatchelder.com/text/unipain/unipain.html#35
-        byte_string = self.extract(filename, **kwargs)
-        unicode_string = self.decode(byte_string, input_encoding)
-        return self.encode(unicode_string, output_encoding)
+        res = self.extract(filename, **kwargs)
+        if isinstance(res, list):
+            for i in range(len(res)):
+                byte_string = res[i]
+                unicode_string = self.decode(byte_string, input_encoding)
+                res[i] = self.encode(unicode_string, output_encoding)
+            return res
+        else:
+            byte_string = res
+            unicode_string = self.decode(byte_string, input_encoding)
+            res = self.encode(unicode_string, output_encoding)
+            return res
 
     def decode(self, text, input_encoding=None):
         """Decode ``text`` using the `chardet
